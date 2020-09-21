@@ -1,0 +1,8 @@
+Sobre el archivo con el libro de IVA es necesario hacer las siguientes modifica:
+En la hoja de EXPEDIDAS:
+Agregar columna  J con nombre NFactura y contenido: =CONCAT(K2;L2) para formar un numero de factura completo sobre el que buscar
+Renombrar columna H : Fecha Expedición  => Fecha Expedicion
+
+En la hoja de RECIBIDAS:
+Renombrar columna H : Fecha Expedición  => Fecha Expedicion
+Agregar columna  L con nombre NFactura y contenido: =CONCAT(M2)  necesario para tener formato correcto
