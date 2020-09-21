@@ -1,3 +1,6 @@
+Ejecución
+python3 importa_asientos.py
+
 Sobre el archivo con el libro de IVA es necesario hacer las siguientes modifica:
 En la hoja de EXPEDIDAS:
 Agregar columna  J con nombre NFactura y contenido: =CONCAT(K2;L2) para formar un numero de factura completo sobre el que buscar
