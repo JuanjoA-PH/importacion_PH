@@ -33,27 +33,6 @@ IVA_ACCOUNT_PURCHASE = int(config['data']['iva_account_purchase'])
 
 JOURNAL_FILE = config['files']['journal_file']
 VAT_FILE = config['files']['vat_file']
-    
-
-# with open('config_import.cfg') as f:
-
-#     SERVER = f.readline().rstrip('\n')
-#     DATABASE = f.readline().rstrip('\n')
-#     USERNAME = f.readline().rstrip('\n')
-#     PASSWORD = f.readline().rstrip('\n')
-
-#     PROTOCOL = f.readline().rstrip('\n')
-#     PORT = int(f.readline().rstrip('\n'))
-
-#     COMPANY_ID = int(f.readline().rstrip('\n'))
-#     JOURNAL_ID = int(f.readline().rstrip('\n'))
-#     SALE_JOURNAL_ID = int(f.readline().rstrip('\n'))
-#     PURCHASE_JOURNAL_ID = int(f.readline().rstrip('\n'))
-#     IVA_ACCOUNT_SALE = f.readline().rstrip('\n')
-#     IVA_ACCOUNT_PURCHASE = f.readline().rstrip('\n')
-#     JOURNAL_FILE = f.readline().rstrip('\n')
-#     VAT_FILE = f.readline().rstrip('\n')
-    
 
 
 CSV_IGNNORE_HEAD = False
@@ -160,7 +139,7 @@ def confirm(question, default='yes'):
 def get_dif_account_id():
     account_obj = odoo.env['account.account']
     # Código 1000000 capital social
-    account_ids = account_obj.search([('code', '=', '100000')])
+    account_ids = account_obj.search([('code', '=', '100000000')])
     account_id = account_ids and account_ids[0]
     return account_id
 
@@ -209,7 +188,7 @@ def get_partner_and_account_id(old_account_code, account_code, account_name):
     if account_code[:3] in ['400', '410', '430']:
         # Cliente o proveedor o acreedor
         partner_id = get_partner(old_account_code, account_code, account_name)
-        parent_code = '%s000' % (account_code[:3])
+        parent_code = '%s000000' % (account_code[:3])
         account_code = parent_code
     account_ids = account_obj.search([('code', '=', account_code)])
     account_id = account_ids and account_ids[0]
@@ -217,11 +196,11 @@ def get_partner_and_account_id(old_account_code, account_code, account_name):
         parent_account_ids = account_obj.search([('code', '=', parent_code)])
         parent_account_id = parent_account_ids and parent_account_ids[0]
         if not parent_account_id:
-            parent_code = '%s000' % (account_code[:3])
+            parent_code = '%s000000' % (account_code[:3])
             parent_account_ids = account_obj.search([('code', '=', parent_code)])
             parent_account_id = parent_account_ids and parent_account_ids[0]
             if not parent_account_id:
-                parent_code = '%s0000' % (account_code[:2])
+                parent_code = '%s0000000' % (account_code[:2])
                 parent_account_ids = account_obj.search([('code', '=', parent_code)])
                 parent_account_id = parent_account_ids and parent_account_ids[0]
         try:
@@ -234,11 +213,11 @@ def get_partner_and_account_id(old_account_code, account_code, account_name):
             print('> Exception {}'.format(e))
             print('ERROR copiando cuenta')
             print(account_code)
-            import pdb; pdb.set_trace()
+            
     if not account_id:
         print('cuenta no encontrada')
         print(account_code)
-        import pdb; pdb.set_trace()
+        
     return partner_id, account_id, account_code
 
 
@@ -256,8 +235,8 @@ def get_bank_journal_id(bank_account_code):
         # Si no lo encuentra crea el diario de tipo de banco 
         bank_journal_id = journal_obj.search([
             ('type', '=', 'bank'),
-            ('default_debit_account_id', '=', bank_account_code[:3]+'001'),
-            ('default_credit_account_id', '=', bank_account_code[:3]+'001')
+            ('default_debit_account_id', '=', bank_account_code[:3]+'000001'),
+            ('default_credit_account_id', '=', bank_account_code[:3]+'000001')
         ], limit=1)
         journal_id = journal_obj.copy(bank_journal_id[0], {
             'default_debit_account_id': account_id,
@@ -279,7 +258,7 @@ def crea_apunte(row):
     if account_code and account_code != '':
         account_name = row[7].value
         print(account_name)
-        account_code = account_code[:4]+account_code[-2:]
+        account_code = account_code[:6]+account_code[-3:]
         print(account_code)
         debit = row[9].value
         credit = row[10].value
@@ -619,7 +598,6 @@ def get_journal(lines):
  
 
 if confirm("Importar asientos desde '%s' ?" % JOURNAL_FILE):
-    # Importante lanzar al menos una vez en BD, crea contactos y data de lineas
     
     excel_document = openpyxl.load_workbook(JOURNAL_FILE)
     sheet = excel_document.get_sheet_by_name('Hoja1')
